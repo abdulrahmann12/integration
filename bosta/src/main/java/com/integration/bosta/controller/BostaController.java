@@ -18,8 +18,6 @@ public class BostaController {
 	
     @GetMapping("/login")
     public String login() {
-    	System.out.println("==== LOGIN ENDPOINT CALLED ====");
-
         return bostaIntegrationService.loginToBosta();
     }
     
@@ -27,5 +25,9 @@ public class BostaController {
     public CustomUserDataDTO fullDATA() {
         return bostaIntegrationService.getAllData();
     }
-	
+    
+    @GetMapping("/orders")
+    public String getAllOrders() {
+        return bostaIntegrationService.getAllOrders();
+    }
 }

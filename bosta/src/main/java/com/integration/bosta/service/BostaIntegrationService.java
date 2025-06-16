@@ -22,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 public class BostaIntegrationService {
 
     private final RestTemplate restTemplate;
+    private String cachedToken;
+
     
     private static final String baseurl = "https://app.bosta.co/api/v2";
 
@@ -49,7 +51,7 @@ public class BostaIntegrationService {
    		JsonNode data = root.get("data");
    		
    		String token = data.get("token").asText();
-   		    	
+   		cachedToken = token;	
         return token;
 
     	    } catch (Exception e) {
@@ -61,15 +63,14 @@ public class BostaIntegrationService {
     
     public CustomUserDataDTO getAllData() {
     	String url = baseurl + "/users/fullData";
-        String token = loginToBosta(); 
 
-        if (token == null) {
+        if (cachedToken == null) {
             throw new IllegalAccessError( "Failed to get token from login");
         }
         
     	HttpHeaders headers = new HttpHeaders();
     	headers.setContentType(MediaType.APPLICATION_JSON);
-    	headers.set("Authorization",token);
+    	headers.set("Authorization",cachedToken);
     	
     	HttpEntity<String> requestEntity = new HttpEntity<>(headers);
     	
@@ -102,4 +103,22 @@ public class BostaIntegrationService {
 	        return null;
 		}
     }
-}
+    
+    
+    public String getAllOrders() {
+    	String url  = baseurl +"/deliveries/analytics/total-deliveries";
+        if (cachedToken == null) {
+            throw new IllegalAccessError( "Failed to get token from login");
+        }
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", cachedToken);
+        
+        HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
+        
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+        return response.getBody();
+    }
+    
+    }
